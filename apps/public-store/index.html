@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset='UTF-8'/>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
+  <title>Kitchen Online Store</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin:0; background:#fafafa; }
+    .wrap{max-width:480px;margin:0 auto;padding:16px}
+    .card{background:white;border-radius:12px;padding:12px;margin:10px 0;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+    .desktop-warning{display:none}
+    @media (min-width: 900px){ .desktop-warning{display:block;color:#b91c1c}.store{display:none}}
+    button{background:#16a34a;color:white;border:0;padding:10px 12px;border-radius:8px}
+  </style>
+</head>
+<body>
+  <div class='wrap'>
+    <h2>Kitchen Storefront</h2>
+    <p class='desktop-warning'>This storefront is optimized for mobile QR ordering only.</p>
+    <div class='store'>
+      <div id='sectionLabel' class='card'></div>
+      <div id='products'></div>
+      <div class='card'>
+        <strong>Cart Total:</strong> <span id='total'>0</span>
+        <br/><br/>
+        <button onclick='sendOrder()'>Send Order to WhatsApp</button>
+      </div>
+    </div>
+  </div>
+<script>
+const data=[
+  {id:'p1',name:'Jollof Rice',price:3500},
+  {id:'p2',name:'Chicken Suya',price:4200},
+  {id:'p3',name:'Fresh Juice',price:1800}
+];
+const qs=new URLSearchParams(location.search);
+const section=qs.get('section')||'Main Section';
+const adjustType=qs.get('adjType')||'none';
+const adjustVal=Number(qs.get('adjVal')||0);
+const wa=qs.get('wa')||'2340000000000';
+const cart={};
+function adjusted(p){
+  if(adjustType==='percent') return p + (p*adjustVal/100);
+  if(adjustType==='amount') return p + adjustVal;
+  return p;
+}
+function render(){
+  document.getElementById('sectionLabel').innerHTML=`<b>Section:</b> ${section} (${adjustType} ${adjustVal||''})`;
+  document.getElementById('products').innerHTML=data.map(p=>`<div class='card'><b>${p.name}</b><br/>₦${adjusted(p.price).toFixed(2)}<br/><button onclick="add('${p.id}')">Add</button></div>`).join('');
+  const total=Object.entries(cart).reduce((s,[id,q])=>{const p=data.find(x=>x.id===id);return s+adjusted(p.price)*q},0);
+  document.getElementById('total').textContent=`₦${total.toFixed(2)}`;
+}
+function add(id){ cart[id]=(cart[id]||0)+1; render(); }
+function sendOrder(){
+  const lines=Object.entries(cart).map(([id,q])=>{const p=data.find(x=>x.id===id);return `- ${p.name} x${q} = ₦${(adjusted(p.price)*q).toFixed(2)}`});
+  if(!lines.length){ alert('Add items first'); return; }
+  const text=encodeURIComponent(`Hello, new order from ${section}%0A${lines.join('%0A')}`);
+  location.href=`https://wa.me/${wa}?text=${text}`;
+}
+render();
+</script>
+</body>
+</html>

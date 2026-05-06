@@ -1,0 +1,24 @@
+openapi: 3.0.3
+info:
+  title: Kitchen Commerce API
+  version: 0.1.0
+paths:
+  /products:
+    get: { summary: List products }
+    post: { summary: Create product }
+  /sales/checkout:
+    post: { summary: Checkout cart with tax/discount/credit }
+  /customers:
+    get: { summary: List customers }
+    post: { summary: Create customer }
+  /credits:
+    get: { summary: Debt book records }
+  /table-sections:
+    get: { summary: List restaurant sections }
+    post: { summary: Create section and assign products }
+  /table-sections/{id}/qr:
+    post: { summary: Generate QR for section storefront }
+  /whatsapp/webhook:
+    post: { summary: Receive WhatsApp events }
+  /ai-agent/order-intent:
+    post: { summary: Openclaw parses chat into structured order intent }
